@@ -21,8 +21,8 @@ class AuthRepositoryImpl implements AuthRepository {
     String email,
     String password,
     String name,
-  ){
-    throw UnimplementedError();
+  )async{
+    await service.register(email, password, name);
   }
 
 }
