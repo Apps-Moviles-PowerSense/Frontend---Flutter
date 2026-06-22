@@ -12,10 +12,11 @@ class LoginResponseDto{
   });
 
   factory LoginResponseDto.fromJson(Map<String, dynamic> json) {
+    final Map<String, dynamic> userMap = json['user'] ?? {};
     return LoginResponseDto(
       token: json['token'],
-      name: json['name'],
-      email: json['email'],
+      name: userMap['name'] ?? '',
+      email: userMap['email'] ?? '',
     );
   }
 

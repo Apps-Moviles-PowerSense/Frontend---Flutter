@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:power_sense/features/auth/presentation/login_state.dart';
 import 'package:power_sense/features/auth/presentation/login_view_model.dart';
 import 'package:power_sense/features/main/presentation/main_page.dart';
+import 'package:power_sense/features/auth/presentation/register_page.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
@@ -121,6 +122,23 @@ class LoginPage extends StatelessWidget {
                                             
                                       ),
                                     ),
+                                    const SizedBox(height: 16),
+                                    
+                                    TextButton(
+                                      onPressed: state is LoginLoading 
+                                          ? null
+                                          : () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(builder: (context) => RegisterPage()),
+                                              );
+                                            },
+                                      child: const Text(
+                                        '¿No tienes una cuenta? Regístrate aquí',
+                                        style: TextStyle(color: Colors.green),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 32),
                                   ],
                                 ),
                               ),
