@@ -11,10 +11,11 @@ class _MainPageState extends State<MainPage> {
   int selectedIndex = 0;
 
   final List<Widget> pages = const [
-    Center(child: Text('Dashboard Page', style: TextStyle(fontSize: 24))),
-    Center(child: Text('Devices Page', style: TextStyle(fontSize: 24))),
-    Center(child: Text('Alerts Page', style: TextStyle(fontSize: 24))),
-    Center(child: Text('Reports Page', style: TextStyle(fontSize: 24))),
+    Center(child: Text('Dashboard Page', style: TextStyle(fontSize: 24))),     // 0: Dashboard
+    Center(child: Text('Devices Page', style: TextStyle(fontSize: 24))),       // 1: Dispositivos
+    Center(child: Text('Programacion Page', style: TextStyle(fontSize: 24))),  // 2: Programación 
+    Center(child: Text('Reports Page', style: TextStyle(fontSize: 24))),       // 3: Reportes
+    Center(child: Text('Alerts Page', style: TextStyle(fontSize: 24))),        // 4: Alertas
   ];
   void onItemTapped(int index) {
     setState(() {
@@ -29,6 +30,8 @@ class _MainPageState extends State<MainPage> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: selectedIndex,
+        selectedItemColor: Colors.green,
+        unselectedItemColor: Colors.grey,
         onTap: (value) {
           setState(() {
             selectedIndex = value;
