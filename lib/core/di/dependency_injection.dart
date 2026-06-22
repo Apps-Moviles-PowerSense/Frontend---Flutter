@@ -5,6 +5,7 @@ import 'package:power_sense/features/auth/data/auth_repository_impl.dart';
 import 'package:power_sense/features/auth/data/auth_service.dart';
 import 'package:power_sense/features/auth/domain/auth_repository.dart';
 import 'package:power_sense/features/auth/presentation/login_view_model.dart';
+import 'package:power_sense/features/auth/presentation/register_view_model.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -34,5 +35,9 @@ void setupDependencies() {
   // Login ViewModel 
   getIt.registerFactory<LoginViewModel>(
     () => LoginViewModel(repository: getIt<AuthRepository>()),
+  );
+
+  getIt.registerFactory<RegisterViewModel>(
+    () => RegisterViewModel(repository: getIt<AuthRepository>()),
   );
 }
