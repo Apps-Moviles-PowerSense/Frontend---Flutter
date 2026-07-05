@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:power_sense/core/storage/token_storage.dart';
+import 'package:power_sense/features/alerts/data/alert_repository_impl.dart';
+import 'package:power_sense/features/alerts/data/alert_service.dart';
+import 'package:power_sense/features/alerts/presentation/alert_page.dart';
+import 'package:power_sense/features/alerts/presentation/alert_view_model.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -10,12 +17,23 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int selectedIndex = 0;
 
-  final List<Widget> pages = const [
+  final List<Widget> pages = [
     Center(child: Text('Dashboard Page', style: TextStyle(fontSize: 24))),     // 0: Dashboard
     Center(child: Text('Devices Page', style: TextStyle(fontSize: 24))),       // 1: Dispositivos
     Center(child: Text('Programacion Page', style: TextStyle(fontSize: 24))),  // 2: Programación 
     Center(child: Text('Reports Page', style: TextStyle(fontSize: 24))),       // 3: Reportes
-    Center(child: Text('Alerts Page', style: TextStyle(fontSize: 24))),        // 4: Alertas
+    BlocProvider(
+      create: (context) => AlertViewModel(
+        repository: AlertRepositoryImpl(
+          alertService: AlertService(
+            tokenStorage: const TokenStorage(
+              storage: FlutterSecureStorage(),
+            ),
+          ),
+        ),
+      ),
+      child: const AlertPage(),
+    ),   // 4: Alertas
   ];
   void onItemTapped(int index) {
     setState(() {
@@ -32,12 +50,8 @@ class _MainPageState extends State<MainPage> {
         currentIndex: selectedIndex,
         selectedItemColor: Colors.green,
         unselectedItemColor: Colors.grey,
-        onTap: (value) {
-          setState(() {
-            selectedIndex = value;
-          });
-        },
-        items: [
+        onTap: onItemTapped, 
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.auto_awesome_mosaic_outlined),
             activeIcon: Icon(Icons.auto_awesome_mosaic),
