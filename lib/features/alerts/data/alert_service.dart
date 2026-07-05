@@ -1,107 +1,105 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:http/http.dart' as http;
 import 'package:power_sense/features/alerts/data/alert_dto.dart';
+import 'package:power_sense/core/storage/token_storage.dart';
 
-class AlertService{
+class AlertService {
+  final TokenStorage tokenStorage;
+  final String baseUrl = 'http://34.28.139.66:8080/api/v1/analytics/alerts';
 
-  final String baseUrl = 
-    'http://34.28.139.66:8080/api/v1/analytics/alerts';
-  // Get Alerts
+  AlertService({required this.tokenStorage});
+
+  Future<Map<String, String>> getHeaders() async {
+    final String? token = await tokenStorage.getToken();
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+  }
+
   Future<List<AlertDto>> getAlerts() async {
     final Uri uri = Uri.parse(baseUrl);
-
-    final http.Response response = await http.get(
-      uri,
-      headers: {'Content-Type': 'application/json'},
-    );
+    final headers = await getHeaders();
+    final http.Response response = await http.get(uri, headers: headers);
 
     if (response.statusCode == HttpStatus.ok) {
       final List<dynamic> jsonList = jsonDecode(response.body);
       return jsonList.map((json) => AlertDto.fromJson(json)).toList();
     }
-    
-    throw Exception('Error loading alerts: ${response.statusCode}');
+    throw Exception('Error al cargar alertas: ${response.statusCode}');
+  }
+
+  Future<List<AlertDto>> getRecentAlerts() async {
+    final Uri uri = Uri.parse('$baseUrl/recent');
+    final headers = await getHeaders();
+    final http.Response response = await http.get(uri, headers: headers);
+
+    if (response.statusCode == HttpStatus.ok) {
+      final List<dynamic> jsonList = jsonDecode(response.body);
+      return jsonList.map((json) => AlertDto.fromJson(json)).toList();
+    }
+    throw Exception('Error al cargar alertas recientes: ${response.statusCode}');
   }
 
   Future<AlertDto> getAlertById(String id) async {
     final Uri uri = Uri.parse('$baseUrl/$id');
-
-    final http.Response response = await http.get(
-      uri,
-      headers: {'Content-Type': 'application/json'},
-    );
+    final headers = await getHeaders();
+    final http.Response response = await http.get(uri, headers: headers);
 
     if (response.statusCode == HttpStatus.ok) {
-      final json = jsonDecode(response.body);
-      return AlertDto.fromJson(json);
+      return AlertDto.fromJson(jsonDecode(response.body));
     }
-    
-    throw Exception('Error obtaining alert: ${response.statusCode}');
+    throw Exception('Error al obtener alerta: ${response.statusCode}');
   }
 
   Future<AlertDto> createAlert(AlertDto alertDto) async {
     final Uri uri = Uri.parse(baseUrl);
-
+    final headers = await getHeaders();
     final http.Response response = await http.post(
       uri,
-      headers: {'Content-Type': 'application/json'},
+      headers: headers,
       body: jsonEncode(alertDto.toJson()),
     );
 
     if (response.statusCode == HttpStatus.ok || response.statusCode == HttpStatus.created) {
-      final json = jsonDecode(response.body);
-      return AlertDto.fromJson(json);
+      return AlertDto.fromJson(jsonDecode(response.body));
     }
-    
-    throw Exception('Error creating alert: ${response.statusCode}');
+    throw Exception('Error al crear alerta: ${response.statusCode}');
   }
 
   Future<AlertDto> updateAlert(String id, AlertDto alertDto) async {
     final Uri uri = Uri.parse('$baseUrl/$id');
-
+    final headers = await getHeaders();
     final http.Response response = await http.put(
       uri,
-      headers: {'Content-Type': 'application/json'},
+      headers: headers,
       body: jsonEncode(alertDto.toJson()),
     );
 
     if (response.statusCode == HttpStatus.ok) {
-      final json = jsonDecode(response.body);
-      return AlertDto.fromJson(json);
+      return AlertDto.fromJson(jsonDecode(response.body));
     }
-    
-    throw Exception('Error al actualizar la alerta: ${response.statusCode}');
+    throw Exception('Error al actualizar alerta: ${response.statusCode}');
   }
 
   Future<void> deleteAlert(String id) async {
     final Uri uri = Uri.parse('$baseUrl/$id');
+    final headers = await getHeaders();
+    final http.Response response = await http.delete(uri, headers: headers);
 
-    final http.Response response = await http.delete(
-      uri,
-      headers: {'Content-Type': 'application/json'},
-    );
-
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return;
+    if (response.statusCode != HttpStatus.ok && response.statusCode != HttpStatus.noContent) {
+      throw Exception('Error al eliminar alerta: ${response.statusCode}');
     }
-    
-    throw Exception('Error al eliminar la alerta: ${response.statusCode}');
   }
 
   Future<void> acknowledgeAlert(String id) async {
     final Uri uri = Uri.parse('$baseUrl/$id/acknowledge');
+    final headers = await getHeaders();
+    final http.Response response = await http.patch(uri, headers: headers);
 
-    final http.Response response = await http.put(
-      uri,
-      headers: {'Content-Type': 'application/json'},
-    );
-
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return;
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('Error al reconocer alerta: ${response.statusCode}');
     }
-    
-    throw Exception('Error al reconocer la alerta: ${response.statusCode}');
   }
 }

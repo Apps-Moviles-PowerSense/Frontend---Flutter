@@ -10,19 +10,25 @@ class AlertRepositoryImpl implements AlertRepository {
 
   @override
   Future<List<Alert>> getAlerts() async {
-    final dtos = await alertService.getAlerts();
-    return dtos.map((dto) => dto.toDomain()).toList();
+    final alertList = await alertService.getAlerts();
+    return alertList.map((alertItem) => alertItem.toDomain()).toList();
+  }
+
+  @override
+  Future<List<Alert>> getRecentAlerts() async {
+    final alertList = await alertService.getRecentAlerts();
+    return alertList.map((alertItem) => alertItem.toDomain()).toList();
   }
 
   @override
   Future<Alert> getAlertById(String id) async {
-    final dto = await alertService.getAlertById(id);
-    return dto.toDomain();
+    final alertDto = await alertService.getAlertById(id);
+    return alertDto.toDomain();
   }
 
   @override
   Future<Alert> createAlert(Alert alert) async {
-    final dtoToSend = AlertDto(
+    final alertDtoToSend = AlertDto(
       id: alert.id,
       type: alert.type,
       severity: alert.severity,
@@ -35,13 +41,13 @@ class AlertRepositoryImpl implements AlertRepository {
       updatedAt: alert.updatedAt,
     );
 
-    final responseDto = await alertService.createAlert(dtoToSend);
+    final responseDto = await alertService.createAlert(alertDtoToSend);
     return responseDto.toDomain();
   }
 
   @override
   Future<Alert> updateAlert(String id, Alert alert) async {
-    final dtoToSend = AlertDto(
+    final alertDtoToSend = AlertDto(
       id: alert.id,
       type: alert.type,
       severity: alert.severity,
@@ -54,7 +60,7 @@ class AlertRepositoryImpl implements AlertRepository {
       updatedAt: alert.updatedAt,
     );
 
-    final responseDto = await alertService.updateAlert(id, dtoToSend);
+    final responseDto = await alertService.updateAlert(id, alertDtoToSend);
     return responseDto.toDomain();
   }
 
@@ -71,10 +77,10 @@ class AlertRepositoryImpl implements AlertRepository {
   @override
   Future<void> acknowledgeAllAlerts() async {
     final allAlerts = await getAlerts();
-    final unacknowledged = allAlerts.where((a) => !a.acknowledged).toList();
+    final unacknowledgedAlerts = allAlerts.where((alertItem) => !alertItem.acknowledged).toList();
     
-    for (final alert in unacknowledged) {
-      await alertService.acknowledgeAlert(alert.id);
+    for (final alertItem in unacknowledgedAlerts) {
+      await alertService.acknowledgeAlert(alertItem.id);
     }
   }
 }

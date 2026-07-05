@@ -7,8 +7,17 @@ class AlertInitial extends AlertState {}
 class AlertLoading extends AlertState {}
 
 class AlertSuccess extends AlertState {
-  final List<Alert> alerts;
-  AlertSuccess({required this.alerts});
+  final List<Alert> allAlerts;
+  final List<Alert> unreadAlerts;
+  final List<Alert> readAlerts;
+  final String? selectedType;
+
+  AlertSuccess({
+    required this.allAlerts,
+    required this.unreadAlerts,
+    required this.readAlerts,
+    this.selectedType,
+  });
 }
 
 class AlertFailure extends AlertState {
