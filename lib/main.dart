@@ -14,6 +14,7 @@ void main() {
     providers: [
       BlocProvider(create: (context)=> getIt<LoginViewModel>()),
       BlocProvider(create: (context) => getIt<RegisterViewModel>()),
+      
     ],
     child: MainApp(),
     ) 

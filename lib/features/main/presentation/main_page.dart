@@ -6,6 +6,10 @@ import 'package:power_sense/features/alerts/data/alert_repository_impl.dart';
 import 'package:power_sense/features/alerts/data/alert_service.dart';
 import 'package:power_sense/features/alerts/presentation/alert_page.dart';
 import 'package:power_sense/features/alerts/presentation/alert_view_model.dart';
+import 'package:power_sense/features/devices/data/device_repository_impl.dart';
+import 'package:power_sense/features/devices/data/device_service.dart';
+import 'package:power_sense/features/devices/presentation/device_page.dart';
+import 'package:power_sense/features/devices/presentation/device_view_model.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -16,25 +20,40 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int selectedIndex = 0;
+  final tokenStorage = const TokenStorage(storage: FlutterSecureStorage());
+  
+  late final List<Widget> pages;
 
-  final List<Widget> pages = [
-    Center(child: Text('Dashboard Page', style: TextStyle(fontSize: 24))),     // 0: Dashboard
-    Center(child: Text('Devices Page', style: TextStyle(fontSize: 24))),       // 1: Dispositivos
-    Center(child: Text('Programacion Page', style: TextStyle(fontSize: 24))),  // 2: Programación 
-    Center(child: Text('Reports Page', style: TextStyle(fontSize: 24))),       // 3: Reportes
-    BlocProvider(
-      create: (context) => AlertViewModel(
-        repository: AlertRepositoryImpl(
-          alertService: AlertService(
-            tokenStorage: const TokenStorage(
-              storage: FlutterSecureStorage(),
+  @override
+  void initState() {
+    super.initState();
+    pages = [
+      const Center(child: Text('Dashboard Page', style: TextStyle(fontSize: 24))),
+      BlocProvider(
+        create: (context) => DeviceViewModel(
+          deviceRepository: DeviceRepositoryImpl(
+            deviceService: DeviceService(
+              tokenStorage: tokenStorage,
             ),
           ),
         ),
+        child: const DevicePage(),
       ),
-      child: const AlertPage(),
-    ),   // 4: Alertas
-  ];
+      const Center(child: Text('Programacion Page', style: TextStyle(fontSize: 24))),
+      const Center(child: Text('Reports Page', style: TextStyle(fontSize: 24))),
+      BlocProvider(
+        create: (context) => AlertViewModel(
+          repository: AlertRepositoryImpl(
+            alertService: AlertService(
+              tokenStorage: tokenStorage,
+            ),
+          ),
+        ),
+        child: const AlertPage(),
+      ),
+    ];
+  }
+
   void onItemTapped(int index) {
     setState(() {
       selectedIndex = index;
@@ -44,7 +63,10 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: pages[selectedIndex],
+      body: IndexedStack(
+        index: selectedIndex,
+        children: pages,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: selectedIndex,
