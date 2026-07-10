@@ -332,7 +332,7 @@ class _ReportPageState extends State<ReportPage> {
                       children: [
                         Container(
                           padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                          decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
                           child: Icon(icon, color: color, size: 20),
                         ),
                         const SizedBox(width: 12),
@@ -344,7 +344,7 @@ class _ReportPageState extends State<ReportPage> {
                     const SizedBox(height: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(color: variationColor.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
+                      decoration: BoxDecoration(color: variationColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
                       child: Text(
                         '$prefix$variation% vs. mes anterior',
                         style: TextStyle(color: variationColor, fontSize: 12, fontWeight: FontWeight.w500),
@@ -361,14 +361,12 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   Widget _buildMonthlyComparisonChart(List<MonthlyComparison> data) {
-    if (data.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
     double maxVal = 1.0;
-    for (var item in data) {
-      if (item.value1 > maxVal) maxVal = item.value1;
-      if (item.value2 > maxVal) maxVal = item.value2;
+    if (data.isNotEmpty) {
+      for (var item in data) {
+        if (item.value1 > maxVal) maxVal = item.value1;
+        if (item.value2 > maxVal) maxVal = item.value2;
+      }
     }
 
     return Card(
@@ -404,33 +402,50 @@ class _ReportPageState extends State<ReportPage> {
               ],
             ),
             const SizedBox(height: 24),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: data.map((item) {
-                  final h1 = (160 * (item.value1 / maxVal));
-                  final h2 = (160 * (item.value2 / maxVal));
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 20.0),
-                    child: Column(
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
+            if (data.isEmpty)
+              Container(
+                height: 160,
+                width: double.infinity,
+                alignment: Alignment.center,
+                child: const Text(
+                  'No hay datos comparativos disponibles',
+                  style: TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w500),
+                ),
+              )
+            else
+              SizedBox(
+                height: 185,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: data.map((item) {
+                      final double height1 = (140 * (item.value1 / maxVal));
+                      final double height2 = (140 * (item.value2 / maxVal));
+                      final double renderHeight1 = height1 < 4.0 ? 4.0 : height1;
+                      final double renderHeight2 = height2 < 4.0 ? 4.0 : height2;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 20.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Container(width: 14, height: h1, decoration: const BoxDecoration(color: Color(0xFF81C784), borderRadius: BorderRadius.vertical(top: Radius.circular(4)))),
-                            const SizedBox(width: 4),
-                            Container(width: 14, height: h2, decoration: const BoxDecoration(color: Color(0xFF64B5F6), borderRadius: BorderRadius.vertical(top: Radius.circular(4)))),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Container(width: 14, height: renderHeight1, decoration: const BoxDecoration(color: Color(0xFF81C784), borderRadius: BorderRadius.vertical(top: Radius.circular(4)))),
+                                const SizedBox(width: 4),
+                                Container(width: 14, height: renderHeight2, decoration: const BoxDecoration(color: Color(0xFF64B5F6), borderRadius: BorderRadius.vertical(top: Radius.circular(4)))),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(item.month, style: const TextStyle(fontSize: 12, color: Color(0xFF919EAB))),
                           ],
                         ),
-                        const SizedBox(height: 8),
-                        Text(item.month, style: const TextStyle(fontSize: 12, color: Color(0xFF919EAB))),
-                      ],
-                    ),
-                  );
-                }).toList(),
+                      );
+                    }).toList(),
+                  ),
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -438,14 +453,12 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   Widget _buildDepartmentComparisonChart(List<DepartmentMetric> data) {
-    if (data.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
     double maxVal = 1.0;
-    for (var item in data) {
-      if (item.current > maxVal) maxVal = item.current;
-      if (item.previous > maxVal) maxVal = item.previous;
+    if (data.isNotEmpty) {
+      for (var item in data) {
+        if (item.current > maxVal) maxVal = item.current;
+        if (item.previous > maxVal) maxVal = item.previous;
+      }
     }
 
     return Card(
@@ -481,33 +494,50 @@ class _ReportPageState extends State<ReportPage> {
               ],
             ),
             const SizedBox(height: 24),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: data.map((item) {
-                  final h1 = (160 * (item.current / maxVal));
-                  final h2 = (160 * (item.previous / maxVal));
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 24.0),
-                    child: Column(
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
+            if (data.isEmpty)
+              Container(
+                height: 160,
+                width: double.infinity,
+                alignment: Alignment.center,
+                child: const Text(
+                  'No hay métricas por departamento disponibles',
+                  style: TextStyle(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w500),
+                ),
+              )
+            else
+              SizedBox(
+                height: 185,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: data.map((item) {
+                      final double height1 = (140 * (item.current / maxVal));
+                      final double height2 = (140 * (item.previous / maxVal));
+                      final double renderHeight1 = height1 < 4.0 ? 4.0 : height1;
+                      final double renderHeight2 = height2 < 4.0 ? 4.0 : height2;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 24.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Container(width: 14, height: h1, decoration: const BoxDecoration(color: Color(0xFF81C784), borderRadius: BorderRadius.vertical(top: Radius.circular(4)))),
-                            const SizedBox(width: 4),
-                            Container(width: 14, height: h2, decoration: const BoxDecoration(color: Color(0xFFB39DDB), borderRadius: BorderRadius.vertical(top: Radius.circular(4)))),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Container(width: 14, height: renderHeight1, decoration: const BoxDecoration(color: Color(0xFF81C784), borderRadius: BorderRadius.vertical(top: Radius.circular(4)))),
+                                const SizedBox(width: 4),
+                                Container(width: 14, height: renderHeight2, decoration: const BoxDecoration(color: Color(0xFFB39DDB), borderRadius: BorderRadius.vertical(top: Radius.circular(4)))),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(item.department, style: const TextStyle(fontSize: 11, color: Color(0xFF919EAB))),
                           ],
                         ),
-                        const SizedBox(height: 8),
-                        Text(item.department, style: const TextStyle(fontSize: 11, color: Color(0xFF919EAB))),
-                      ],
-                    ),
-                  );
-                }).toList(),
+                      );
+                    }).toList(),
+                  ),
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -518,6 +548,7 @@ class _ReportPageState extends State<ReportPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
           const SizedBox(width: 6),
@@ -609,7 +640,7 @@ class _ReportPageState extends State<ReportPage> {
                                 width: 60,
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                                  decoration: BoxDecoration(color: varColor.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
+                                  decoration: BoxDecoration(color: varColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
                                   child: Text(
                                     '$prefix${item.variation}%',
                                     style: TextStyle(fontSize: 10, color: varColor, fontWeight: FontWeight.bold),
