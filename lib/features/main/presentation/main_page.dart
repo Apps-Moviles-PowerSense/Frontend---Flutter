@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:power_sense/core/storage/token_storage.dart';
-import 'package:power_sense/features/alerts/data/alert_repository_impl.dart';
-import 'package:power_sense/features/alerts/data/alert_service.dart';
-import 'package:power_sense/features/alerts/presentation/alert_page.dart';
-import 'package:power_sense/features/alerts/presentation/alert_view_model.dart';
-import 'package:power_sense/features/devices/data/device_repository_impl.dart';
-import 'package:power_sense/features/devices/data/device_service.dart';
+import 'package:power_sense/core/di/dependency_injection.dart';
+
+import 'package:power_sense/features/dashboard/presentation/dashboard_page.dart';
+import 'package:power_sense/features/dashboard/presentation/dashboard_view_model.dart';
+
 import 'package:power_sense/features/devices/presentation/device_page.dart';
 import 'package:power_sense/features/devices/presentation/device_view_model.dart';
-import 'package:power_sense/features/reports/presentation/report_page.dart'; 
+
+import 'package:power_sense/features/schedules/presentation/schedule_page.dart';
+import 'package:power_sense/features/schedules/presentation/schedule_view_model.dart';
+
+import 'package:power_sense/features/reports/presentation/report_page.dart';
+import 'package:power_sense/features/reports/presentation/report_view_model.dart';
+
+import 'package:power_sense/features/alerts/presentation/alert_page.dart';
+import 'package:power_sense/features/alerts/presentation/alert_view_model.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -21,35 +26,31 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int selectedIndex = 0;
-  final tokenStorage = const TokenStorage(storage: FlutterSecureStorage());
-  
   late final List<Widget> pages;
 
   @override
   void initState() {
     super.initState();
+    // Aquí inyectamos cada ViewModel directamente a su respectiva página
     pages = [
-      const Center(child: Text('Dashboard Page', style: TextStyle(fontSize: 24))),
       BlocProvider(
-        create: (context) => DeviceViewModel(
-          deviceRepository: DeviceRepositoryImpl(
-            deviceService: DeviceService(
-              tokenStorage: tokenStorage,
-            ),
-          ),
-        ),
+        create: (context) => getIt<DashboardViewModel>(),
+        child: const DashboardPage(),
+      ),
+      BlocProvider(
+        create: (context) => getIt<DeviceViewModel>(),
         child: const DevicePage(),
       ),
-      const Center(child: Text('Programacion Page', style: TextStyle(fontSize: 24))),
-      const ReportPage(),
       BlocProvider(
-        create: (context) => AlertViewModel(
-          repository: AlertRepositoryImpl(
-            alertService: AlertService(
-              tokenStorage: tokenStorage,
-            ),
-          ),
-        ),
+        create: (context) => getIt<ScheduleViewModel>(),
+        child: const SchedulePage(),
+      ),
+      BlocProvider(
+        create: (context) => getIt<ReportViewModel>(),
+        child: const ReportPage(),
+      ),
+      BlocProvider(
+        create: (context) => getIt<AlertViewModel>(),
         child: const AlertPage(),
       ),
     ];
