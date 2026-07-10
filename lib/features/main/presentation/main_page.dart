@@ -10,6 +10,7 @@ import 'package:power_sense/features/devices/data/device_repository_impl.dart';
 import 'package:power_sense/features/devices/data/device_service.dart';
 import 'package:power_sense/features/devices/presentation/device_page.dart';
 import 'package:power_sense/features/devices/presentation/device_view_model.dart';
+import 'package:power_sense/features/reports/presentation/report_page.dart'; 
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -40,7 +41,7 @@ class _MainPageState extends State<MainPage> {
         child: const DevicePage(),
       ),
       const Center(child: Text('Programacion Page', style: TextStyle(fontSize: 24))),
-      const Center(child: Text('Reports Page', style: TextStyle(fontSize: 24))),
+      const ReportPage(),
       BlocProvider(
         create: (context) => AlertViewModel(
           repository: AlertRepositoryImpl(

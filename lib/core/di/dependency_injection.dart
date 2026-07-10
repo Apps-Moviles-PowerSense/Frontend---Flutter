@@ -7,10 +7,15 @@ import 'package:power_sense/features/auth/domain/auth_repository.dart';
 import 'package:power_sense/features/auth/presentation/login_view_model.dart';
 import 'package:power_sense/features/auth/presentation/register_view_model.dart';
 
+// Imports de Reportes
+import 'package:power_sense/features/reports/data/report_repository_impl.dart';
+import 'package:power_sense/features/reports/data/report_service.dart';
+import 'package:power_sense/features/reports/domain/report_repository.dart';
+import 'package:power_sense/features/reports/presentation/report_view_model.dart';
+
 final GetIt getIt = GetIt.instance;
 
 void setupDependencies() {
-
   // Auth Service
   getIt.registerLazySingleton<AuthService>(() => AuthService());
   
@@ -23,9 +28,9 @@ void setupDependencies() {
   getIt.registerLazySingleton<TokenStorage>(
     () => TokenStorage(storage: getIt<FlutterSecureStorage>()),
   );
+  
   // Auth Repository
   getIt.registerLazySingleton<AuthRepository>(
-    
     () => AuthRepositoryImpl(
       service: getIt<AuthService>(),
       tokenStorage: getIt<TokenStorage>(),
@@ -39,5 +44,22 @@ void setupDependencies() {
 
   getIt.registerFactory<RegisterViewModel>(
     () => RegisterViewModel(repository: getIt<AuthRepository>()),
+  );
+
+  // --- REPORTES ---
+  
+  // Report Service
+  getIt.registerLazySingleton<ReportService>(
+    () => ReportService(tokenStorage: getIt<TokenStorage>()),
+  );
+
+  // Report Repository
+  getIt.registerLazySingleton<ReportRepository>(
+    () => ReportRepositoryImpl(reportService: getIt<ReportService>()),
+  );
+
+  // Report ViewModel
+  getIt.registerFactory<ReportViewModel>(
+    () => ReportViewModel(reportRepository: getIt<ReportRepository>()),
   );
 }
